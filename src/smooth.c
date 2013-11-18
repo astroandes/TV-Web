@@ -877,38 +877,40 @@ int main(int argc,char **argv)
       
 	    
       if(Opt_EigenVectors){
-	if(!(Density.eigenvector_1 = malloc(sizeof(float)*Density.NNodes*3))){
+	n_to_alloc = sizeof(float)*Density.NNodes*3;
+	if(!(Density.eigenvector_1 = malloc(n_to_alloc))){
 	  puts("Problem with eigenvector allocation");
 	  exit(1);
 	}
-	if(!(Density.eigenvector_2 = malloc(sizeof(float)*Density.NNodes*3))){
+	if(!(Density.eigenvector_2 = malloc(n_to_alloc))){
 	  puts("Problem with eigenvector allocation");
 	  exit(1);
 	}
-	if(!(Density.eigenvector_3 = malloc(sizeof(float)*Density.NNodes*3))){
+	if(!(Density.eigenvector_3 = malloc(n_to_alloc))){
 	  puts("Problem with eigenvector allocation");
 	  exit(1);
 	}
       }
       
       if(!Opt_EigenVectors){
+	n_to_alloc = sizeof(float)*Density.NNodes;
 	/*allocate the memory*/
-	if(!(Density.eigenvalue_1 =  malloc(sizeof(float)*Density.NNodes))){	    
+	if(!(Density.eigenvalue_1 =  malloc(n_to_alloc))){	    
 	  puts("problem with the eigenvalue allocation");
 	  exit(1);
 	}
 	
-	if(!(Density.eigenvalue_2 =  malloc(sizeof(float)*Density.NNodes))){
+	if(!(Density.eigenvalue_2 =  malloc(n_to_alloc))){
 	  puts("problem with the eigenvalue allocation");
 	  exit(1);
 	}
 	
-	if(!(Density.eigenvalue_3 =  malloc(sizeof(float)*Density.NNodes))){
+	if(!(Density.eigenvalue_3 =  malloc(n_to_alloc))){
 	  puts("problem with the eigenvalue allocation");
 	  exit(1);
 	}
 	
-	if(!(Density.trace =  malloc(sizeof(FLOAT)*Density.NNodes))){
+	if(!(Density.trace =  malloc(n_to_alloc))){
 	  puts("problem with the trace allocation");
 	  exit(1);
 	}
@@ -923,7 +925,8 @@ int main(int argc,char **argv)
       double tmp_norm_t_web;
       float *ratio;
 
-      if(!(ratio=malloc(sizeof(float)*Density.NNodes))){
+      n_to_alloc = sizeof(float)*Density.NNodes;
+      if(!(ratio=malloc(n_to_alloc))){
 	fprintf(stdout, "Problem with ratio allocation\n");
 	exit(1);
       }

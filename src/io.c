@@ -146,7 +146,7 @@ int ReadGadget(char *fname, snapshot_data *P, int flags)
  
 
 	 for (i=0;i<6;i++){
-	   printf ("Size=%d \  Header Mass=%f\n",P->header.npart[i], P->header.mass[i]);
+	   printf ("Size=%d Header Mass=%f\n",P->header.npart[i], P->header.mass[i]);
 	 }
         //eventually swap endianness
 	if (flags&FLAG_SWAPENDIAN)
@@ -199,7 +199,7 @@ int ReadGadget(char *fname, snapshot_data *P, int flags)
 #endif	      
  
       fprintf(stdout, "Particle number %lld %lld %lld \n", 3*NumPart, NumPart, (long long) P->header.npart[0]);
-      fprintf(stdout, "N tot with masses %lld\n", ntot_withmasses);
+      fprintf(stdout, "N tot with masses %d\n", ntot_withmasses);
       if(ifile==0)
       {
 	  if(flags&FLAG_POS){
@@ -765,89 +765,6 @@ int LoadSurveyCone(SurveyCone *Cone,const char *fname)
   return 0;
 }
 
-int LoadTree(const char *FileName,Grid **MyGridPtr)
-{
-    FILE *fichier;
-    int i,j,n;
-    Tree *tmp;
-    Grid *MyGrid=*MyGridPtr;
-
-    char *command;
-    
-    char *buf;
-    int size=0;
-
-    buf=NULL;
-    
-    printf ("Loading file %s\n",FileName);fflush(0);
-    //sprintf(command,"gunzip %s",FileName);
-    //system (command);
-
-    fichier = fopen(FileName,"r");
-
-    Mygetline(&buf,&size,fichier);
-    if (strncmp("Minimal spanning tree",buf,21))
-    {
-	printf ("%s does not look like a minimal spanning tree file\n",fichier);
-	return -1;
-    }
-
-    *MyGridPtr = MyGrid = (Grid *) malloc(sizeof(Grid));
-
-    //1.number of points
-    //2.dimensions
-    //3.points coordinates
-    //4.tree
-    fscanf(fichier,"%d\n",&MyGrid->N);
-    fscanf(fichier,"%f %f %f %f %f %f\n",&MyGrid->XMin,&MyGrid->XMax,&MyGrid->YMin,&MyGrid->YMax,&MyGrid->ZMin,&MyGrid->ZMax);
-
-    MyGrid->x = (float *) malloc (sizeof(float)*MyGrid->N);
-    MyGrid->y = (float *) malloc (sizeof(float)*MyGrid->N);
-    MyGrid->z = (float *) malloc (sizeof(float)*MyGrid->N);
-
-    MyGrid->mst = (Tree *) malloc (sizeof(Tree)*MyGrid->N);
-    MyGrid->mst = (Tree *) malloc (sizeof(Tree)*MyGrid->N);
-    MyGrid->mst = (Tree *) malloc (sizeof(Tree)*MyGrid->N);
-
-    Mygetline(&buf,&size,fichier);
-
-    for (i=0;i<MyGrid->N;i++)
-	fscanf(fichier,"%f %f %f\n",&MyGrid->x[i],&MyGrid->y[i],&MyGrid->z[i]);
-
-    Mygetline(&buf,&size,fichier);
-
-    for (i=0;i<MyGrid->N;i++)
-    {
-	tmp = &MyGrid->mst[i];
-
-	tmp->N = i;
-	tmp->Group = 0;
-
-	fscanf(fichier,"%d %f",&tmp->NbOthers,&tmp->d);
-	fscanf (fichier," %d", &n);
-	
-	if (n==-1) tmp->Next=NULL;
-	else tmp->Next = &MyGrid->mst[n];
-
-	MyGrid->mst[i].Other= (Tree **) malloc(sizeof(Tree *) * tmp->NbOthers);
-	//printf("sdqdsqdqsd\n");fflush(0);
-	for (j=0;j<tmp->NbOthers;j++)
-	{
-	    fscanf (fichier,"%d",&n);
-	    MyGrid->mst[i].Other[j] = &MyGrid->mst[n];
-	}
-    }
-    
-    fclose(fichier);
-
-
-    return 0;
-	
-}
-
-
-
-  
 int LoadEigenvalueGrid(char *fname,density_grid *density)
 {
     FILE *f;
@@ -1093,7 +1010,7 @@ int LoadVelocityGrid(char *fname, density_grid *density, int component)
 {
     FILE *f;
     unsigned int i;
-
+    long long n_to_alloc;
     char test[30];
     int swap = 0;
     
@@ -1137,8 +1054,9 @@ int LoadVelocityGrid(char *fname, density_grid *density, int component)
     fread_sw(&(density->dz),sizeof(float),1,f,swap);
     fread(&i,sizeof(int),1,f);
 
+    n_to_alloc = density->NNodes*sizeof(FLOAT);
     if(component==0){
-    if (!(density->grid_vx=(FLOAT *)malloc((size_t)density->NNodes*sizeof(FLOAT))))
+    if (!(density->grid_vx=(FLOAT *)malloc((size_t)n_to_alloc)))
     {
 	fprintf(stderr,"Not enough memory for density->grid while loading\n");
 	exit(0);
@@ -1149,7 +1067,7 @@ int LoadVelocityGrid(char *fname, density_grid *density, int component)
     }
 
     if(component==1){
-    if (!(density->grid_vy=(FLOAT *)malloc((size_t)density->NNodes*sizeof(FLOAT))))
+    if (!(density->grid_vy=(FLOAT *)malloc((size_t)n_to_alloc)))
     {
 	fprintf(stderr,"Not enough memory for density->grid while loading\n");
 	exit(0);
@@ -1160,7 +1078,7 @@ int LoadVelocityGrid(char *fname, density_grid *density, int component)
     }
 
     if(component==2){
-    if (!(density->grid_vz=(FLOAT *)malloc((size_t)density->NNodes*sizeof(FLOAT))))
+    if (!(density->grid_vz=(FLOAT *)malloc((size_t)n_to_alloc)))
     {
 	fprintf(stderr,"Not enough memory for density->grid while loading\n");
 	exit(0);
