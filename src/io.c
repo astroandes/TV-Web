@@ -800,7 +800,7 @@ int LoadEigenvalueGrid(char *fname,density_grid *density)
     fread_sw(&(density->Nx),sizeof(int),1,f,swap);
     fread_sw(&(density->Ny),sizeof(int),1,f,swap);
     fread_sw(&(density->Nz),sizeof(int),1,f,swap);
-    fread_sw(&(density->NNodes),sizeof(int),1,f,swap);
+    fread_sw(&(density->NNodes),sizeof(long long),1,f,swap);
 
     fread_sw(&(density->x0),sizeof(float),1,f,swap);
     fread_sw(&(density->y0),sizeof(float),1,f,swap);
@@ -879,7 +879,7 @@ int LoadEnvGrid(char *fname,density_grid *density)
     fread_sw(&(density->Nx),sizeof(int),1,f,swap);
     fread_sw(&(density->Ny),sizeof(int),1,f,swap);
     fread_sw(&(density->Nz),sizeof(int),1,f,swap);
-    fread_sw(&(density->NNodes),sizeof(int),1,f,swap);
+    fread_sw(&(density->NNodes),sizeof(long long),1,f,swap);
 
     fread_sw(&(density->x0),sizeof(float),1,f,swap);
     fread_sw(&(density->y0),sizeof(float),1,f,swap);
@@ -960,7 +960,7 @@ int LoadDensityGrid(char *fname, density_grid *density)
     fread_sw(&(density->Nx),sizeof(int),1,f,swap);    
     fread_sw(&(density->Ny),sizeof(int),1,f,swap);
     fread_sw(&(density->Nz),sizeof(int),1,f,swap);
-    fread_sw(&(density->NNodes),sizeof(int),1,f,swap);
+    fread_sw(&(density->NNodes),sizeof(long long),1,f,swap);
 
     fprintf(stderr, "Nx Ny Nz : %d %d %d\n", density->Nx, density->Ny, density->Nz);
 
@@ -1041,7 +1041,7 @@ int LoadVelocityGrid(char *fname, density_grid *density, int component)
     fread_sw(&(density->Nx),sizeof(int),1,f,swap);    
     fread_sw(&(density->Ny),sizeof(int),1,f,swap);
     fread_sw(&(density->Nz),sizeof(int),1,f,swap);
-    fread_sw(&(density->NNodes),sizeof(int),1,f,swap);
+    fread_sw(&(density->NNodes),sizeof(long long),1,f,swap);
 
     fprintf(stderr, "Nx Ny Nz : %d %d %d\n", density->Nx, density->Ny, density->Nz);
 
@@ -1121,7 +1121,7 @@ int LoadDensity(char *fname,density_field *density)
     if (swap) printf ("(Swapping)");fflush(0);
 
     fread(&(density->header),sizeof(snapshot_header),1,f);
-    fread(&(density->NNodes),sizeof(int),1,f);
+    fread(&(density->NNodes),sizeof(long long),1,f);
     fread(&(density->delta),sizeof(float),1,f);
     fread(&(density->Nx),sizeof(int),1,f);
     fread(&(density->Ny),sizeof(int),1,f);
@@ -1144,7 +1144,7 @@ int LoadDensity(char *fname,density_field *density)
 	Dswap4B(&density->header.num_files);
 	Dswap8B(&density->header.time);Dswap8B(&density->header.redshift);Dswap8B(&density->header.BoxSize);
 	Dswap8B(&density->header.Omega0);Dswap8B(&density->header.OmegaLambda);Dswap8B(&density->header.HubbleParam);
-	Dswap4B(&(density->NNodes));
+	Dswap8B(&(density->NNodes));
 	Dswap4B(&(density->delta));
 	Dswap4B(&(density->Nx));
 	Dswap4B(&(density->Ny));
@@ -1272,7 +1272,7 @@ int SaveDensityGrid(char *fname,density_grid *density)
     fwrite(&(density->Ny),sizeof(int),1,f);
     fwrite(&(density->Nz),sizeof(int),1,f);
     fwrite(&(density->NNodes),sizeof(int),1,f);
-    printf("N nodes to write %d\n", density->NNodes);
+    printf("N nodes to write %lld\n", density->NNodes);
     fwrite(&(density->x0),sizeof(float),1,f);
     fwrite(&(density->y0),sizeof(float),1,f);
     fwrite(&(density->z0),sizeof(float),1,f);
@@ -1389,7 +1389,7 @@ int SaveEigenvectorGrid(char *fname, density_grid *density, int n_eigen)
     fwrite(&(density->Nx),sizeof(int),1,f);
     fwrite(&(density->Ny),sizeof(int),1,f);
     fwrite(&(density->Nz),sizeof(int),1,f);
-    fwrite(&(density->NNodes),sizeof(int),1,f);
+    fwrite(&(density->NNodes),sizeof(long long),1,f);
     printf("N nodes to write %ld\n", density->NNodes*3);
     fwrite(&(density->x0),sizeof(float),1,f);
     fwrite(&(density->y0),sizeof(float),1,f);
@@ -1447,7 +1447,7 @@ int SaveTraceGrid(char *fname,density_grid *density)
     fwrite(&(density->Nx),sizeof(int),1,f);
     fwrite(&(density->Ny),sizeof(int),1,f);
     fwrite(&(density->Nz),sizeof(int),1,f);
-    fwrite(&(density->NNodes),sizeof(int),1,f);
+    fwrite(&(density->NNodes),sizeof(long long),1,f);
     printf("N nodes to write %d\n", density->NNodes);
     fwrite(&(density->x0),sizeof(float),1,f);
     fwrite(&(density->y0),sizeof(float),1,f);
@@ -1526,7 +1526,7 @@ int SaveEnvGrid(char *fname,density_grid *density)
 
 int WriteGadget(char *fname,snapshot_data *snap,int flags)
 {
-  int i,j,k;
+ int i,j,k;
   FILE *f;
 
   if ((f=fopen(fname,"w"))==NULL)

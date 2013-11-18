@@ -24,7 +24,7 @@
 typedef struct density_grid_str
 {
   int Nx,Ny,Nz;//Number of nodes along x,y and z.
-  int NNodes;//number of nodes
+  long long NNodes;//number of nodes
   
   float x0,y0,z0;//start coordinates
   float dx,dy,dz;//grid spacing
@@ -58,7 +58,7 @@ typedef struct density_field_str
 {
     snapshot_header header;//gadget header
 
-    int NNodes;//number of nodes on the grid
+    long long NNodes;//number of nodes on the grid
     float delta;//distance between two nodes (should be <= sigma)
     int Nx,Ny,Nz;//nodes along X,Y and Z
     
