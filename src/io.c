@@ -1271,7 +1271,7 @@ int SaveDensityGrid(char *fname,density_grid *density)
     fwrite(&(density->Nx),sizeof(int),1,f);
     fwrite(&(density->Ny),sizeof(int),1,f);
     fwrite(&(density->Nz),sizeof(int),1,f);
-    fwrite(&(density->NNodes),sizeof(int),1,f);
+    fwrite(&(density->NNodes),sizeof(long long),1,f);
     printf("N nodes to write %lld\n", density->NNodes);
     fwrite(&(density->x0),sizeof(float),1,f);
     fwrite(&(density->y0),sizeof(float),1,f);
@@ -1330,7 +1330,7 @@ int SaveEigenvalueGrid(char *fname, density_grid *density, int n_eigen)
     fwrite(&(density->Nx),sizeof(int),1,f);
     fwrite(&(density->Ny),sizeof(int),1,f);
     fwrite(&(density->Nz),sizeof(int),1,f);
-    fwrite(&(density->NNodes),sizeof(int),1,f);
+    fwrite(&(density->NNodes),sizeof(long long),1,f);
     printf("N nodes to write %d\n", density->NNodes);
     fwrite(&(density->x0),sizeof(float),1,f);
     fwrite(&(density->y0),sizeof(float),1,f);
