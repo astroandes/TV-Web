@@ -156,6 +156,7 @@ int main(int argc,char **argv)
     double Total=0;
     density_grid Density;
     long long n;
+    long long n_to_alloc;
     void *FilterParams;
     double (*filterfunc)(double,double,double,void *);
     EllGaussianParms EGparams;
@@ -373,7 +374,7 @@ int main(int argc,char **argv)
 	    n=Simu->N;
 	    sorted_snap = malloc (n*sizeof(sort_str));
 	    printf ("size:%d\n",(int)sizeof(sort_str));
-	    printf ("Degrading data (%d -> %d) ... ",n,(int)(Opt_Degval*n));fflush(0); 
+	    printf ("Degrading data (%ld -> %ld) ... ",n,(int)(Opt_Degval*n));fflush(0); 
 	    srand(1);
 			       
 	    for (i=0;i<n;i++)
@@ -650,39 +651,41 @@ int main(int argc,char **argv)
 
 	    /*allocate the memory*/
       if(Opt_EigenVectors){
-	if(!(Density.eigenvector_1 = malloc(sizeof(float)*Density.NNodes*3))){
+	n_to_alloc = sizeof(float)*Density.NNodes*3;
+	if(!(Density.eigenvector_1 = malloc(n_to_alloc))){
 	  puts("Problem with eigenvector allocation");
 	  exit(1);
 	}
-	if(!(Density.eigenvector_2 = malloc(sizeof(float)*Density.NNodes*3))){
+	if(!(Density.eigenvector_2 = malloc(n_to_alloc))){
 	  puts("Problem with eigenvector allocation");
 	  exit(1);
 	}
-	if(!(Density.eigenvector_3 = malloc(sizeof(float)*Density.NNodes*3))){
+	if(!(Density.eigenvector_3 = malloc(n_to_alloc))){
 	  puts("Problem with eigenvector allocation");
 	  exit(1);
 	}
       }
       if(!Opt_EigenVectors){
-	if(!(Density.eigenvalue_1 =  malloc(sizeof(float)*Density.NNodes)))
+	n_to_alloc = sizeof(float)*Density.NNodes;
+	if(!(Density.eigenvalue_1 =  malloc(n_to_alloc)))
 	  {
 	    puts("problem with the eigenvalue allocation");
 	    exit(1);
 	  }
 	
-	if(!(Density.eigenvalue_2 =  malloc(sizeof(float)*Density.NNodes)))
+	if(!(Density.eigenvalue_2 =  malloc(n_to_alloc)))
 	  {
 	    puts("problem with the eigenvalue allocation");
 	    exit(1);
 	  }
 	
-	if(!(Density.eigenvalue_3 =  malloc(sizeof(float)*Density.NNodes)))
+	if(!(Density.eigenvalue_3 =  malloc(n_to_alloc)))
 	  {
 	    puts("problem with the eigenvalue allocation");
 	    exit(1);
 	  }
       }
-	    if(!(Density.trace =  malloc(sizeof(FLOAT)*Density.NNodes)))
+	    if(!(Density.trace =  malloc(n_to_alloc)))
 	    {
 		puts("problem with the trace allocation");
 		exit(1);

@@ -534,7 +534,7 @@ int read_art_snap_multifile(char * namein, char * datain, snapshot_data *P, int 
 	  Nparticles = (NROW*NROW*NROW);    
 	  if(!(P->Pos = malloc(3*Nparticles*sizeof(float))))
 	    {
-	      printf("problem allocating memory for particles positions (%d particles)\n", Nparticles);
+	      printf("problem allocating memory for particles positions (%lld particles)\n", Nparticles);
 	      exit(1);
 	    }
 	  if(!(P->Vel = malloc(3*Nparticles*sizeof(float))))

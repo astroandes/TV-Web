@@ -1499,6 +1499,7 @@ int SaveEigenvectorGrid(char *fname, density_grid *density, int n_eigen)
     fwrite(&i,sizeof(int),1,f);
 
     printf ("done.\n");
+    return(0);
 }
 
 
@@ -1602,6 +1603,7 @@ int SaveEnvGrid(char *fname,density_grid *density)
     fwrite(&i,sizeof(int),1,f);
     
     printf ("done.\n");
+    return 0;
 }
 
 int WriteGadget(char *fname,snapshot_data *snap,int flags)

@@ -141,7 +141,7 @@ int ComputeDensityGradiant(density_grid *density,int mode)
 {
     unsigned int i,j,k,n;
     int dx,dy,dz;
-
+    long long n_to_alloc;
     FLOAT *grid;
     FLOAT *tab;
     //grid = density->grid;
@@ -158,8 +158,8 @@ int ComputeDensityGradiant(density_grid *density,int mode)
 //#if (USE_FFTW==1)
     if (mode == USE_FFT)
       {
-
-	tab = (FLOAT *) malloc (sizeof(FLOAT)*density->NNodes);
+	n_to_alloc = sizeof(FLOAT) * density->NNodes;
+	tab = (FLOAT *) malloc (n_to_alloc);
 	
 	//for (i=0,n=density->NNodes-1;i<density->NNodes;i++,n--) tab[i]=grid[i];
 	FFT_diff(grid,density->Nx,density->Ny,density->Nz,1.,1.,1.,FLAG_DX,&tab);
@@ -200,35 +200,6 @@ int ComputeDensityGradiant(density_grid *density,int mode)
 		    //printf ("_%lg_ _%lg_ _%lg_\n",density->grad[3*n],density->grad[3*n+1],density->grad[3*n+2]);
 		}
     }
-/*  
-    for (i=0;i<3*density->NNodes;i+=3)
-    {
-	density->grad[i]/=density->dx;
-	density->grad[i+1]/=density->dy;
-	density->grad[i+2]/=density->dz;
-    }
-*/    
-
-/*
- {
-     double s0,s1,s2;
-    	for (i=0;i<density->NNodes;i++)
-	{
-	    //s0+=pow(density->grid[i],2);
-	    s0+=pow(density->grad[3*i],2);
-	    s1+=pow(density->grad[3*i+1],2);
-	    s2+=pow(density->grad[3*i+2],2);
-	    //s2+=pow(density->hessian[6*i],2);
-	}
-
-	s0=sqrt(s0/density->NNodes);
-	s1=sqrt(s1/density->NNodes);
-	s2=sqrt(s2/density->NNodes);
-	printf ("s0=%10.10lf, s1=%10.10lf, s2=%10.10lf\n",s0,s1,s2);
- }
-*/
-
-
     density->HasGradiant=1;
     return 1;
 }
@@ -243,7 +214,7 @@ int ComputeDensityHessian(density_grid *density,int mode)
     int dxp,dyp,dzp;
     int dxm,dym,dzm;
 
-
+    long long n_to_alloc;
     FLOAT *hess;
 
     FLOAT *grid;
@@ -266,7 +237,8 @@ int ComputeDensityHessian(density_grid *density,int mode)
     //#if (USE_FFTW==1)
     if (mode == USE_FFT)
     {
-	tab = (FLOAT *) malloc (sizeof(FLOAT)*density->NNodes);
+      n_to_alloc = sizeof(FLOAT)*density->NNodes;
+	tab = (FLOAT *) malloc (n_to_alloc);
 	
 	//for (i=0,n=density->NNodes-1;i<density->NNodes;i++,n--) tab[i]=grid[i];
 	printf("starts first FFT\n");
@@ -926,24 +898,7 @@ int FilterSmooth(density_grid *grid,double (*filterfunc)(double,double,double,vo
 	cpl_grid[i] *= (cpl_filter[i]/grid->NNodes);
     }
     free(filter);
-    
-/*    
-    printf ("\rFiltering with sigma=%f ... (convolving)",sigma_p);fflush(0);
 
-    for (k=0,m=0;k<grid->Nz;k++)
-	for (j=0;j<grid->Ny;j++)
-	    for (i=0;i<grid->Nx/2+1;i++,m++)
-	    {
-	      double k2;
-
-	      k2 = pow(IndGen_3D(i,j,k,grid->Nx),2);
-	      cpl_grid[m] *= sqrt(PI*2*sigma_p*sigma_p)*exp(-PI*PI*k2*2*sigma_p*sigma_p)/grid->NNodes;
-	    }
-
-
-    printf ("\rFiltering with sigma=%f ... (inverse FFT)",sigma_p);fflush(0);
-*/
-  
     p3=FFTWNAME(plan_dft_c2r_3d)(grid->Nz,grid->Ny,grid->Nx,(FFTW_COMPLEX *)mygrid,mygrid,FFTW_ESTIMATE);
     FFTWNAME(execute)(p3);
     
@@ -960,25 +915,7 @@ int FilterSmooth(density_grid *grid,double (*filterfunc)(double,double,double,vo
 	    }
     
     mygrid = realloc(mygrid,grid->NNodes*sizeof(FLOAT));
-/*
-    if (sizeof(FLOAT) != sizeof(double))
-      {
-        grid->grid = calloc(grid->NNodes,sizeof(double));
-        for (i=0;i<grid->NNodes;i++)
-          grid->grid[i]=mygrid[i];
-        free (mygrid);
-      }
-*/
-    
-/*   
-    dummy = malloc (grid->NNodes*sizeof(double));
-    memcpy(dummy,grid->grid,grid->NNodes*sizeof(double));
 
-    for (i=0;i<grid->NNodes;i++)
-	grid->grid[i] = dummy[grid->NNodes-i-1];
-    
-    free (dummy);
-*/
     printf ("\rFiltering with '%s' ... done.                     \n",filtername);
   
     return 0;

@@ -19,9 +19,7 @@ OBJS = smooth.o io.o endian.o field.o fft_diff.o tools.o READ_ART.o
 INCL = Makefile.altix io.h field.h struct.h endian.h
 
 OBJS_GLUE = glue_meshes.o io.o endian.o field.o fft_diff.o tools.o READ_ART.o
-
 OBJS_ENV = get_env.o io.o endian.o field.o fft_diff.o tools.o READ_ART.o
-
 OBJS_MIX = mix_env.o io.o endian.o field.o fft_diff.o tools.o READ_ART.o
 
 
