@@ -27,8 +27,14 @@ int IsGadgetFile(char *fname)
 
     fread(&i,sizeof(int),1,fd);
 
+
+#ifdef COMP
+    if ((i!=8)&&(swapI(i)!=8))
+	return 0;
+#else
     if ((i!=256)&&(swapI(i)!=256))
 	return 0;
+#endif
 
     fclose(fd);
 
