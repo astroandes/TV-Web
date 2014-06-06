@@ -54,7 +54,7 @@ int ComputePotential(density_grid *grid)
 
     size_t Nalloc = 2*(grid->Nx/2+1)*grid->Ny*grid->Nz;
 
-    FLOAT *dummy;
+    FLOAT *dummy=NULL;
     FLOAT *mygrid;
     
 
@@ -64,14 +64,25 @@ int ComputePotential(density_grid *grid)
 
 
     //Resort data for inplace fft ...
+    fprintf(stdout, "Nalloc %zd \n", Nalloc);
+    fflush(stdout);
     grid->grid = realloc(grid->grid,Nalloc*sizeof(FLOAT));
-    dummy = calloc (Nalloc,sizeof(FLOAT));
+
+    if(!(dummy = malloc(Nalloc*sizeof(FLOAT)))){
+      fprintf(stderr, "Problem with dummy allocation\n");
+      exit(1);
+    }
+
+
+
     mygrid = grid->grid;
 
 
-    for (i=0;i<Nalloc;i++)
+    for (i=0;i<Nalloc;i++){
       dummy[i]=mygrid[i];
+    }
 
+    puts("E");
     //Padds ...
     for (k=0,l=0,m=0;k<grid->Nz;k++)
 	for (j=0;j<grid->Ny;j++,m+=2)
@@ -80,7 +91,9 @@ int ComputePotential(density_grid *grid)
 		mygrid[m]=dummy[l];
 	    }
     
+
     free(dummy);
+
 
 #ifdef FFTW_NTHREADS
     printf ("Using fftw3 with %d threads.\n",FFTW_NTHREADS);
@@ -107,13 +120,13 @@ int ComputePotential(density_grid *grid)
 	      k2 = pow(IndGen_3D(i,j,k,grid->Nx),2);
 	      cpl_grid[m] *= (-1.0/k2)/grid->NNodes;
 	    }
-    puts("computing potential, kernel division");
+
     cpl_grid[0] = 0.0;
   
     p3=FFTWNAME(plan_dft_c2r_3d)(grid->Nz,grid->Ny,grid->Nx,(FFTW_COMPLEX *)mygrid,mygrid,FFTW_ESTIMATE);
     FFTWNAME(execute)(p3);
 
-    puts("computing potential, finished second FFT");    
+
 
 #ifdef FFTW_NTHREADS
     FFTWNAME(cleanup_threads)();
@@ -127,6 +140,8 @@ int ComputePotential(density_grid *grid)
 		mygrid[l]=mygrid[m]/(grid->NNodes);
 	    }
     
+
+
     mygrid = realloc(mygrid,grid->NNodes*sizeof(FLOAT));
 
 
@@ -158,6 +173,7 @@ int ComputeDensityGradiant(density_grid *density,int mode)
 //#if (USE_FFTW==1)
     if (mode == USE_FFT)
       {
+
 	n_to_alloc = sizeof(FLOAT) * density->NNodes;
 	tab = (FLOAT *) malloc (n_to_alloc);
 	

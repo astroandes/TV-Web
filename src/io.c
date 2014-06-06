@@ -159,7 +159,7 @@ int ReadHDF5File(char *fname, snapshot_data *P, int flags){
 	exit(0);
       }
   }
-
+  
   total_part = 0;  
   /*loop over all files and fill the data*/
   for(ifile=0;ifile<nfiles;ifile++){
@@ -196,7 +196,7 @@ int ReadHDF5File(char *fname, snapshot_data *P, int flags){
 	exit(1);
       }
    
-      
+      fprintf(stdout, "total part reading %lld\n", total_part);
       for(i_part=0;i_part<n_particles_file[DM_TYPE];i_part++){
 	P->Pos[(total_part*3) + i_part*3 + 0] = tmp_data[i_part*3 + 0];
 	P->Pos[(total_part*3) + i_part*3 + 1] = tmp_data[i_part*3 + 1];
@@ -242,6 +242,7 @@ int ReadHDF5File(char *fname, snapshot_data *P, int flags){
     total_part  += n_particles_file[DM_TYPE];    
     H5Fclose(file);        
   }
+  P->N = total_part;
   
   
   //  exit(1);

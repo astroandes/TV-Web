@@ -363,7 +363,7 @@ int main(int argc,char **argv)
 	{
 	  ReadART(ART_FileName, FileName, Simu, Opt_ART_NFILES, Opt_ART_MYFILE);
 	}
-	else if(Opt_HDF5&&!(Opt_ART)){
+	else if(Opt_HDF5&& (!Opt_ART)){
 	  ReadHDF5File(FileName, Simu, FLAG_POS);
 	}
 	else	
@@ -445,6 +445,7 @@ int main(int argc,char **argv)
 
 	    return 0;
 	}
+
 	/*
 	if (Opt_genmask)
 	  {
@@ -475,14 +476,14 @@ int main(int argc,char **argv)
 	    
 	  }
 	*/
-	    if(Opt_Gadget_Mass){
-	      Compute_CIC_Density(Simu->Pos,Simu->Mass,1,0,Simu->N,&Density,Opt_nx,Opt_ny,Opt_nz,0,0,0,
-			    Simu->header.BoxSize,Simu->header.BoxSize,Simu->header.BoxSize);
-	    }else{
-	      Compute_CIC_Density(Simu->Pos,NULL,0,0,Simu->N,&Density,Opt_nx,Opt_ny,Opt_nz,0,0,0,
-			    Simu->header.BoxSize,Simu->header.BoxSize,Simu->header.BoxSize);
-	    }
-
+	if(Opt_Gadget_Mass){
+	  Compute_CIC_Density(Simu->Pos,Simu->Mass,1,0,Simu->N,&Density,Opt_nx,Opt_ny,Opt_nz,0,0,0,
+			      Simu->header.BoxSize,Simu->header.BoxSize,Simu->header.BoxSize);
+	}else{
+	  Compute_CIC_Density(Simu->Pos,NULL,0,0,Simu->N,&Density,Opt_nx,Opt_ny,Opt_nz,0,0,0,
+			      Simu->header.BoxSize,Simu->header.BoxSize,Simu->header.BoxSize);
+	}
+	
 	Density.redshift = Simu->header.redshift;
 
 	if (Opt_Center)
@@ -826,8 +827,10 @@ int main(int argc,char **argv)
       LoadDensityGrid(OutFileName,&Density);
     }
 
-    for (i=0,Total=0;i<Density.NNodes;i++)
+    for (i=0,Total=0;i<Density.NNodes;i++){
 	Total += Density.grid[i];
+    }
+    fprintf(stdout, "00 Number of nodes %lld\n", Density.NNodes);
 
 
     if (!Opt_Vel){
@@ -850,8 +853,8 @@ int main(int argc,char **argv)
 	Density.grid[j]/=lo_mean;
 	Density.grid[j]-=1.0;
       }
-      
-
+      fprintf(stdout, "got the overdensity1\n");
+      fflush(stdout);
 
       if (Opt_HasDensity)
 	if (Opt_NSmooth)
@@ -875,14 +878,19 @@ int main(int argc,char **argv)
       }
       
 
+      fprintf(stdout, "computing potential 2\n");
+      fflush(stdout);
       ComputePotential(&Density);	   
-            
+      fprintf(stdout, "computed the potential 2\n");            
+      fflush(stdout);
+      
       for (n=0;n<Density.NNodes;n++){
 	//works for 256
 	Density.grid[n] = Density.grid[n] * pow((1.0*Density.NNodes), 0.75);
       }
       
-      printf("computing hessian density\n");
+      fprintf(stdout, "computing hessian density\n");
+
       ComputeDensityHessian(&Density, USE_FD);
       
       
