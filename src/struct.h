@@ -81,6 +81,10 @@ typedef struct SurveyCone_struct
 
 } SurveyCone;
 
+#define DM_TYPE  1
+#define DM_COORDINATES "/PartType1/Coordinates"
+#define DM_VELOCITIES "/PartType1/Velocities"
+
 #include "tree_struct.h"
 #include "density_struct.h"
 

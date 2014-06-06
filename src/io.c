@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <hdf5.h>
 #include "io.h"
 #include "READ_ART.h"
 
@@ -12,6 +13,18 @@ ssize_t
 Mygetline (char **lineptr, int *n, FILE *stream)
 {
   return getdelim (lineptr, n, '\n', stream);
+}
+
+//checks if file s an arepo file
+int IsHDF5File(char *fname){
+    
+    hid_t file;
+    //check if file opens
+    if((file = H5Fopen (fname, H5F_ACC_RDONLY, H5P_DEFAULT))<0){
+      return 1;
+    }else{
+      return 0;
+    }
 }
 
 
@@ -55,6 +68,186 @@ int ReadART(char *fname_struct, char *fname_data, snapshot_data *P, int nfiles, 
     }
     return 0;
 }
+
+/*
+  reads full simulation in hdf5 format, asuming the structure in arepo
+  simulations
+*/
+int ReadHDF5File(char *fname, snapshot_data *P, int flags){
+  int nfiles;
+  int n_particles_this_file;
+  long long n_particles_total[6];
+  long long n_particles_file[6];
+  double masses[6];
+  char filein[1024];
+  hid_t file, group, attr, status_n, space, dset, filespace, memspace;
+  int ndim;
+  float *tmp_data;
+  hsize_t dims[2];
+  int rank;
+  int i;
+  int ifile;
+  long long n_items;
+  long long i_part;
+  long long total_part;
+
+  fprintf(stdout, "Hello, deja el show\n");  
+  sprintf(filein, "%s.0.hdf5", fname);
+
+  file = H5Fopen (filein, H5F_ACC_RDONLY, H5P_DEFAULT);
+  group = H5Gopen(file, "/Header", H5P_DEFAULT);
+  attr = H5Aopen(group, "NumFilesPerSnapshot", H5P_DEFAULT);
+  status_n = H5Aread(attr, H5T_NATIVE_INT, &nfiles);
+  attr = H5Aopen(group, "NumPart_Total", H5P_DEFAULT);
+  status_n = H5Aread(attr, H5T_NATIVE_LONG, n_particles_total);
+  attr = H5Aopen(group, "NumPart_ThisFile", H5P_DEFAULT);
+  status_n = H5Aread(attr, H5T_NATIVE_LONG, n_particles_file);
+  attr = H5Aopen(group, "MassTable", H5P_DEFAULT);
+  status_n = H5Aread(attr, H5T_NATIVE_DOUBLE, masses);
+  attr = H5Aopen(group, "Time", H5P_DEFAULT);
+  status_n = H5Aread(attr, H5T_NATIVE_DOUBLE, &(P->header.time));
+  attr = H5Aopen(group, "Redshift", H5P_DEFAULT);
+  status_n = H5Aread(attr, H5T_NATIVE_DOUBLE, &(P->header.redshift));
+  attr = H5Aopen(group, "BoxSize", H5P_DEFAULT);
+  status_n = H5Aread(attr, H5T_NATIVE_DOUBLE, &(P->header.BoxSize));
+  attr = H5Aopen(group, "Flag_Sfr", H5P_DEFAULT);
+  status_n = H5Aread(attr, H5T_NATIVE_INT, &(P->header.flag_sfr));
+  attr = H5Aopen(group, "Flag_Feedback", H5P_DEFAULT);
+  status_n = H5Aread(attr, H5T_NATIVE_INT, &(P->header.flag_feedback));
+  attr = H5Aopen(group, "Flag_Cooling", H5P_DEFAULT);
+  status_n = H5Aread(attr, H5T_NATIVE_INT, &(P->header.flag_cooling));
+  attr = H5Aopen(group, "Omega0", H5P_DEFAULT);
+  status_n = H5Aread(attr, H5T_NATIVE_DOUBLE, &(P->header.Omega0));
+  attr = H5Aopen(group, "OmegaLambda", H5P_DEFAULT);
+  status_n = H5Aread(attr, H5T_NATIVE_DOUBLE, &(P->header.OmegaLambda));
+  attr = H5Aopen(group, "HubbleParam", H5P_DEFAULT);
+  status_n = H5Aread(attr, H5T_NATIVE_DOUBLE, &(P->header.HubbleParam));
+
+  H5Aclose(attr);
+  H5Gclose(group);
+  H5Fclose(file);
+
+  for(i=0;i<6;i++){
+    fprintf(stdout, "\n");
+    fprintf(stdout, "Npart Total %lld\n", n_particles_total[i]);
+    fprintf(stdout, "Npart File %lld\n", n_particles_file[i]);
+    fprintf(stdout, "Mass Table %f\n", masses[i]);
+    P->header.npart[i] = n_particles_file[i];
+    P->header.npartTotal[i] = n_particles_total[i];
+    P->header.mass[i] = masses[i];
+  }
+  P->header.num_files = nfiles;
+
+  fprintf(stdout, "The total number of files to read:%d\n", nfiles);
+  fprintf(stdout, "%.2f millions of particles to allocate\n", n_particles_total[DM_TYPE]/1.0E6);
+  fprintf(stdout, "%.2f MB to allocate\n", 6.0*sizeof(float)*n_particles_total[DM_TYPE]/(1024.0*1024.0));
+
+  /* now go for data allocation. Only DM.*/
+  if(flags&FLAG_POS){
+    if(!(P->Pos = (float *)realloc(P->Pos,3*n_particles_total[DM_TYPE]*sizeof(float))))
+      {
+	fprintf(stderr,"failed to allocate memory pos.\n");
+	exit(0);
+      }
+    fprintf(stdout, "realloc'd pos\n");
+  }
+  
+  if (flags&FLAG_VEL){
+    if(!(P->Vel = (float *)realloc(P->Vel,3*n_particles_total[DM_TYPE]*sizeof(float))))
+      {
+	fprintf(stderr,"failed to allocate memory vel.\n");
+	exit(0);
+      }
+  }
+
+  total_part = 0;  
+  /*loop over all files and fill the data*/
+  for(ifile=0;ifile<nfiles;ifile++){
+    sprintf(filein, "%s.%d.hdf5", fname, ifile);
+    file = H5Fopen (filein, H5F_ACC_RDONLY, H5P_DEFAULT);
+    
+    /*Get the number of particles for this file*/
+    group = H5Gopen(file, "/Header", H5P_DEFAULT);
+    attr = H5Aopen(group, "NumPart_ThisFile", H5P_DEFAULT);
+    status_n = H5Aread(attr, H5T_NATIVE_LONG, n_particles_file);
+
+    /*Read all the positions*/
+    if(flags&FLAG_POS){
+      dset = H5Dopen2(file, DM_COORDINATES,H5P_DEFAULT);
+      fprintf(stdout, "getting dataset %s\n", DM_COORDINATES);
+      filespace = H5Dget_space (dset);
+      
+      rank = H5Sget_simple_extent_ndims (filespace);
+      
+      status_n = H5Sget_simple_extent_dims (filespace, dims, NULL);
+      fprintf(stdout, "dimesions are: %d %d\n", (int)(dims[0]), (int)(dims[1]));
+      
+    
+      n_items = (long long)dims[0] * (long long)dims[1];
+      if(!(tmp_data=malloc(sizeof(float) * n_items))){
+	fprintf(stderr, "problem with data allocation\n");
+      }
+      memspace = H5Screate_simple (rank,dims,NULL);  
+      status_n = H5Dread (dset, H5T_NATIVE_FLOAT, memspace, filespace,
+			  H5P_DEFAULT, tmp_data);
+      
+      if(n_particles_file[DM_TYPE]!=dims[0]){
+	fprintf(stderr, "Inconsistent number of particles\n");
+	exit(1);
+      }
+   
+      
+      for(i_part=0;i_part<n_particles_file[DM_TYPE];i_part++){
+	P->Pos[(total_part*3) + i_part*3 + 0] = tmp_data[i_part*3 + 0];
+	P->Pos[(total_part*3) + i_part*3 + 1] = tmp_data[i_part*3 + 1];
+	P->Pos[(total_part*3) + i_part*3 + 2] = tmp_data[i_part*3 + 2];
+      }
+      free(tmp_data);
+    }
+    
+    /*Read all the velocities*/
+    if(flags&FLAG_VEL){
+      dset = H5Dopen2(file, DM_COORDINATES,H5P_DEFAULT);
+      fprintf(stdout, "getting dataset %s\n", DM_VELOCITIES);
+      filespace = H5Dget_space (dset);
+      
+      rank = H5Sget_simple_extent_ndims (filespace);
+      
+      status_n = H5Sget_simple_extent_dims (filespace, dims, NULL);
+      fprintf(stdout, "dimesions are: %d %d\n", (int)(dims[0]), (int)(dims[1]));
+      
+    
+      n_items = (long long)dims[0] * (long long)dims[1];
+      if(!(tmp_data=malloc(sizeof(float) * n_items))){
+	fprintf(stderr, "problem with data allocation\n");
+      }
+      
+      memspace = H5Screate_simple (rank,dims,NULL);  
+      status_n = H5Dread (dset, H5T_NATIVE_FLOAT, memspace, filespace,
+			  H5P_DEFAULT, tmp_data);
+      
+      if(n_particles_file[DM_TYPE]!=dims[0]){
+	fprintf(stderr, "Inconsistent number of particles\n");
+	exit(1);
+      }
+           
+      for(i_part=0;i_part<n_particles_file[DM_TYPE];i_part++){
+	P->Vel[(total_part*3) + i_part*3 + 0] = tmp_data[i_part*3 + 0];
+	P->Vel[(total_part*3) + i_part*3 + 1] = tmp_data[i_part*3 + 1];
+	P->Vel[(total_part*3) + i_part*3 + 2] = tmp_data[i_part*3 + 2];
+      }
+      free(tmp_data);
+    }
+    
+    total_part  += n_particles_file[DM_TYPE];    
+    H5Fclose(file);        
+  }
+  
+  
+  //  exit(1);
+  return 0;
+}
+
 
 /* POINTERS in P MUST BE SET TO NULL BEFORE CALLING */
 /* OR TO PREVIOUSLY ALLOCATED DATA  */

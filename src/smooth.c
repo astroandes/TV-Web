@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <hdf5.h>
 #include "io.h"
 #include "field.h"
 #include "READ_ART.h"
@@ -140,6 +141,8 @@ int main(int argc,char **argv)
     int Opt_Vel = 0;
     
     int Opt_ART = 0;
+
+    int Opt_HDF5 = 0;
 
     int Opt_ART_NFILES = 0;
 
@@ -297,6 +300,11 @@ int main(int argc,char **argv)
 	    Opt_ART=1;
 	    i++;
 	}
+	else if (!strcmp(argv[i],"-hdf5"))
+	{
+	    Opt_HDF5=1;
+	    i++;
+	}
 	else if (!strcmp(argv[i],"-artnfiles"))
 	{
 	    i++;
@@ -339,7 +347,7 @@ int main(int argc,char **argv)
 	    exit(0);
 	}
 
-	if (IsGadgetFile(FileName)&&!(Opt_ART))
+	if (IsGadgetFile(FileName)&&!(Opt_ART)&&!(Opt_HDF5))
 	{
 	  if (Opt_Degrade){
 		ReadGadget(FileName,Simu,FLAG_POS);
@@ -355,7 +363,10 @@ int main(int argc,char **argv)
 	{
 	  ReadART(ART_FileName, FileName, Simu, Opt_ART_NFILES, Opt_ART_MYFILE);
 	}
-	else
+	else if(Opt_HDF5&&!(Opt_ART)){
+	  ReadHDF5File(FileName, Simu, FLAG_POS);
+	}
+	else	
 	{
 	    if (Opt_Degrade)
 		ReadSIMPLE2Gadget(FileName,Simu,FLAG_ALL);

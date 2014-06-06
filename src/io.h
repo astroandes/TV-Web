@@ -18,6 +18,8 @@
 
 #define SKIP(filename) {int skpdummy;fread(&skpdummy,sizeof(skpdummy),1,filename);}
 
+int ReadHDF5File(char *fname, snapshot_data *P, int flags);
+int IsHDF5File(char *fname);
 int SaveEigenvectorGrid(char *fname, density_grid *density, int n_eigen);
 int LoadEnvGrid(char *fname,density_grid *density);
 ssize_t Mygetline (char **lineptr, int *n, FILE *stream);
