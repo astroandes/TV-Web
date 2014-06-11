@@ -68,15 +68,9 @@ int ComputePotential(density_grid *grid)
     fflush(stdout);
     grid->grid = realloc(grid->grid,Nalloc*sizeof(FLOAT));
 
-    if(!(dummy = malloc(Nalloc*sizeof(FLOAT)))){
-      fprintf(stderr, "Problem with dummy allocation\n");
-      exit(1);
-    }
-
-
+    dummy = calloc(Nalloc, sizeof(FLOAT));
 
     mygrid = grid->grid;
-
 
     for (i=0;i<Nalloc;i++){
       dummy[i]=mygrid[i];
