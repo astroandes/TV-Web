@@ -1,0 +1,27 @@
+snap_name=snap_136
+snap_path=/home/springel/universe/AnalysisIllustris/AddGrads/L75n455FP/snapdir_136/
+output_path=/home/extforer/TV-Web/data/
+exec_path=/home/extforer/TV-Web/src/
+grid_size=74
+exec_name = ./smooth.x
+
+tweb: $(output_path)$(snap_name).s1.00.DELTA $(output_path)$(snap_name).s1.00.eigenvec_1
+
+$(output_path)$(snap_name).s1.00.DELTA: $(output_path)$(snap_name).CIC
+	$(exec_path)$(exec_name) -d $(ouput_path)$(snap_name) -s 1.0 -outdir $(output_path)
+
+
+$(output_path)$(snap_name).s1.00.eigenvec_1: $(output_path)$(snap_name).CIC
+	$(exec_path)$(exec_name) -d $(ouput_path)$(snap_name) -s 1.0 -outdir $(output_path) -eigenvector
+
+$(output_path)$(snap_name).CIC: $(exec_path)$(exec_name) 
+	$(exec_path)$(exec_name) $(snap_path)$(snap_name) -hdf5 -n $(grid_size) -outdir $(output_path)
+
+#compiles the source code
+$(exec_path)$(exec_name): 
+	echo "HERE"
+	make -C $(exec_path) -f $(exec_path)Makefile.magny
+
+
+clean:
+	rm -f $(output_path)$(snap_name).s1.00.DELTA $(output_path)$(snap_name).CIC $(exec_path)$(exec_name) $(output_path)$(snap_name).s1.00.eigenvec_1
