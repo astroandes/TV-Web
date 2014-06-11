@@ -91,37 +91,40 @@ def read_CIC_vector(filename):
     return array_data
 
 
-filein="/store/04/bolshoi/V-web/clues/256/snap_190.CIC.s1.00.eigenvec_1"
-eigenvec_1 = read_CIC_vector(filein)
+#filein="/store/04/bolshoi/V-web/clues/256/snap_190.CIC.s1.00.eigenvec_1"
+def test_vector_plot():
+    filein="/home/extforer/TV-Web/data/snap_136.s1.00.eigenvec_1"
+    eigenvec_1 = read_CIC_vector(filein)
 
-x_component = eigenvec_1[0,:,:,:]
-x_component = x_component.flatten()
-x_component = np.absolute(x_component)
+    x_component = eigenvec_1[0,:,:,:]
+    x_component = x_component.flatten()
+    x_component = np.absolute(x_component)
 
-print x_component.shape
-nbins = 20
-mu_bins = np.linspace(0.0,1.0,nbins)
-histo_mu_x, mu_x_range = np.histogram(x_component, bins=mu_bins)
-histo_mu_x = 1.0*histo_mu_x
-delta_x = 1.0/(1.0*nbins)
-histo_mu_x = histo_mu_x/sum(histo_mu_x)/delta_x
-print histo_mu_x, mu_x_range
+    print x_component.shape
+    nbins = 20
+    mu_bins = np.linspace(0.0,1.0,nbins)
+    
+    histo_mu_x, mu_x_range = np.histogram(x_component, bins=mu_bins)
+    histo_mu_x = 1.0*histo_mu_x
+    
+    delta_x = 1.0/(1.0*nbins)
+    histo_mu_x = histo_mu_x/sum(histo_mu_x)/delta_x
+    print histo_mu_x, mu_x_range
 
 
-rc('text', usetex=True)
-rc('font', family='serif')
+    rc('text', usetex=True)
+    rc('font', family='serif')
 
 #plt.plot(mu_x_range[:-1], histo_mu_x, label="$e_{3}\cdot \hat{x}$")
 
-plt.plot(histo_mu_x, histo_mu_x, label="$e_{3}\cdot \hat{x}$")
+    plt.plot(histo_mu_x, histo_mu_x, label="$e_{3}\cdot \hat{x}$")
 
-ylim([0.8, 1.2])
-xlim([0.0, 1.0])
-plt.legend(loc='upper left')
-plt.xlabel("$M_{1500}$")
-plt.ylabel("$\Phi(M_{1500})$ (Mpc$^{-3}$ mag$^{-1}$)")
-plt.savefig('BOX10909_smooth_1.0_align_e3.pdf')
-
+    ylim([0.8, 1.2])
+    xlim([0.0, 1.0])
+    plt.legend(loc='upper left')
+    plt.xlabel("$M_{1500}$")
+    plt.ylabel("$\Phi(M_{1500})$ (Mpc$^{-3}$ mag$^{-1}$)")
+    plt.savefig('BOX10909_smooth_1.0_align_e3.pdf')
 
 
 
