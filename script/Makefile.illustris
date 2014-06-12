@@ -2,7 +2,7 @@ snap_name=snap_136
 snap_path=/home/springel/universe/AnalysisIllustris/AddGrads/L75n455FP/snapdir_136/
 output_path=/home/extforer/TV-Web/data/
 exec_path=/home/extforer/TV-Web/src/
-grid_size=74
+grid_size=128
 exec_name = ./smooth.x
 
 tweb: $(output_path)$(snap_name).s1.00.DELTA $(output_path)$(snap_name).s1.00.eigenvec_1
