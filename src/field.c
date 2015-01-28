@@ -336,24 +336,23 @@ int ComputeDensityHessian(density_grid *density,int mode)
 
 int ComputeVelocityTorsion(density_grid *density)
 {
-  //    unsigned int i,j,k,n;
     long long i,j,k,n;
     int dx,dy,dz;
     
     int dxp,dyp,dzp;
     int dxm,dym,dzm;
-    int ll;
+
 
     FLOAT *torsion;
-    FLOAT *grid;
+
     FLOAT *vel_x;
     FLOAT *vel_y;
     FLOAT *vel_z;
-    FLOAT *dens;
-    FLOAT *tab;
-    FLOAT * my_grid;
+
+
+
     
-    grid  = density->grid;
+
     vel_x = density->grid_vx;
     vel_y = density->grid_vy;
     vel_z = density->grid_vz;
@@ -485,17 +484,9 @@ int Compute_CIC_Density(float *Pos,float *Val,int ValDim,int ValPad,long long np
     float lx,ly,lz,tmp;
     float vol;
     float point_val = 1.0;
-    float min_val, max_val;
-    float min_val_x, max_val_x, delta_x;
-    float min_val_y, max_val_y, delta_y;
-    float min_val_z, max_val_z, delta_z;
-    min_val = 1e10;
-    max_val = -1e10;
-    min_val = 1e10;    max_val = -1e10;  
-    min_val = 1e10;    max_val = -1e10; 
-    min_val = 1e10;    max_val = -1e10;
-
-
+    float min_val_x, max_val_x;
+    float min_val_y, max_val_y;
+    float min_val_z, max_val_z;
 
     printf ("CIC xs= %f\n",xs);
 
@@ -535,15 +526,12 @@ int Compute_CIC_Density(float *Pos,float *Val,int ValDim,int ValPad,long long np
     fprintf(stdout, "min max (x_pos) %g %g \n", min_val_x, max_val_x);
     fprintf(stdout, "min max (y_pos) %g %g \n", min_val_y, max_val_y);
     fprintf(stdout, "min max (z_pos) %g %g \n", min_val_z, max_val_z);
-    delta_x = max_val_x - min_val_x;
-    delta_y = max_val_y - min_val_y;
-    delta_z = max_val_z - min_val_z; 
 
 
     //Now compute the CIC stuff ...
     if (grid->grid!=NULL) free(grid->grid);
     grid->grid = calloc (grid->NNodes,sizeof(FLOAT));
-    printf ("(%d particles) ... \n",npart);
+    printf ("(%lld particles) ... \n",npart);
 
     dx = 1;
     dy = dx*grid->Nx;
@@ -724,7 +712,7 @@ int GaussSmooth(density_grid *grid,float sigma_p, int item)
       grid->grid = realloc(grid->grid,Nalloc*sizeof(FLOAT));
     }
     dummy = calloc (Nalloc,sizeof(FLOAT));
-    fprintf(stderr, "N to alloc %d\n", Nalloc);
+    fprintf(stderr, "N to alloc %d\n", (int)Nalloc);
     /*
     if (sizeof(FLOAT) != sizeof(double))
       {
