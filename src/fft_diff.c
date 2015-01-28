@@ -8,13 +8,16 @@
 FFTW_COMPLEX Ipow(int n)
 {
   int i;
+
   FFTW_COMPLEX a;
 
   i=abs(n)&3;
-  if (i==0) return +1.+0.*I;
-  else if (i==1) return ((n>0)?(+0.+1.*I):(+0.-1.*I));
-  else if (i==2) return  -1.+0.*I;
-  else if (i==3) return  ((n>0)?(+0.-1.*I):(+0.+1.*I));
+  if (i==0) a = +1.+0.*I;
+  else if (i==1) a = ((n>0)?(+0.+1.*I):(+0.-1.*I));
+  else if (i==2) a = -1.+0.*I;
+  else if (i==3) a = ((n>0)?(+0.-1.*I):(+0.+1.*I));
+
+  return a;
 }
 
 //generate properly ordered index for wave vector
