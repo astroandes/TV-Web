@@ -19,7 +19,6 @@ typedef struct sort_str_typ
   float pos[3];
   float vel[3];
   int id;
-  //int rank;
 } sort_str;
 
 int Comp_sort_str(const void *pa,const void *pb)
@@ -130,8 +129,8 @@ int main(int argc,char **argv)
 
     int Opt_Center=0;
     int Opt_Overd=0;
-    int Opt_Test=0;
-    char Testfname[256];
+    
+
 
     char Opt_OutDir[256];
 
@@ -150,8 +149,8 @@ int main(int argc,char **argv)
 
     int Opt_Gadget_Mass = 0;
 
-    int Opt_Threshold = 0;
-    float Env_Threshold = 0.0;
+
+
 
     int Opt_EigenVectors=0;
 
@@ -200,13 +199,6 @@ int main(int argc,char **argv)
 	    Opt_NSmooth=1;
 	    i++;
 	}
-	else if (!strcmp(argv[i],"-t"))
-	{
-	    i++;
-	    Env_Threshold=atof(argv[i]);
-	    i++;
-	}
-
 	else if (!strcmp(argv[i],"-center"))
 	{
 	    Opt_Center=1;
@@ -274,13 +266,6 @@ int main(int argc,char **argv)
 	    Opt_Contrast=1;
 	    i++;
 	    Opt_Contval=atof(argv[i]);
-	    i++;
-	}
-	else if (!strcmp(argv[i],"-test"))
-	{
-	    Opt_Test=1;
-	    i++;
-	    strcpy(Testfname,argv[i]);
 	    i++;
 	}
 	else if (!strcmp(argv[i],"-vel"))
@@ -385,7 +370,7 @@ int main(int argc,char **argv)
 	    n=Simu->N;
 	    sorted_snap = malloc (n*sizeof(sort_str));
 	    printf ("size:%d\n",(int)sizeof(sort_str));
-	    printf ("Degrading data (%ld -> %ld) ... ",n,(int)(Opt_Degval*n));fflush(0); 
+	    printf ("Degrading data (%lld -> %d) ... ",n,(int)(Opt_Degval*n));fflush(0); 
 	    srand(1);
 			       
 	    for (i=0;i<n;i++)
@@ -402,7 +387,6 @@ int main(int argc,char **argv)
 	    for(i=0;i<(1.-Opt_Degval)*n;i++)
 	    {
 	      j=(Simu->N-1) *( ((double)rand())/RAND_MAX );
-	      //printf ("%d\n",sorted_snap[i].id);
 	      if (sorted_snap[j].id!=sorted_snap[Simu->N-1].id)
 		  {
 		    memcpy(&sorted_snap[j],&sorted_snap[Simu->N-1],sizeof(sort_str));
@@ -705,10 +689,10 @@ int main(int argc,char **argv)
 
 	    double Vp[9];
 	    double vp[3];
-	    double pos[3];
+	    //	    double pos[3];
 	    double norm_v_web;
 	    double tmp;
-	    double tmp_vec[3];
+	    //	    double tmp_vec[3];
 	    norm_v_web = -(1.0/100.0)*(1.0/(Density.dx/1000.0));
 	    fprintf(stdout, "Norm v-web %f\n", norm_v_web);
 	    for (n=0;n<Density.NNodes;n++)
@@ -938,10 +922,7 @@ int main(int argc,char **argv)
       /*now make the calculation of the igenvalues*/
       double Vp[9];
       double vp[3];
-      double pos[3];
-      int environment = 0;
       double norm_t_web;
-      double tmp_norm_t_web;
       float *ratio;
 
       n_to_alloc = sizeof(float)*Density.NNodes;
