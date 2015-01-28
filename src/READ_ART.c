@@ -50,7 +50,6 @@ int read_art_snap(char * namein, char * datain, snapshot_data *P)
   int nrowc, ngridc, nspecies, nseed;
   float om0, oml0, hubble, wp5, ocurv;
   float extras[100];
-  float ww;
   char header[45];
   long long * lspecies;
   float * wspecies;
@@ -63,8 +62,8 @@ int read_art_snap(char * namein, char * datain, snapshot_data *P)
   wspecies = &extras[0];
 
 
-  fprintf(stdout, "man sizeof (int) %d\n", sizeof(int));
-  fprintf(stdout, "man sizeof (float) %d\n", sizeof(float));
+  fprintf(stdout, "man sizeof (int) %d\n", (int)sizeof(int));
+  fprintf(stdout, "man sizeof (float) %d\n", (int)sizeof(float));
 
   if(!(filein = fopen(namein, "r")))
     {
@@ -133,13 +132,13 @@ int read_art_snap(char * namein, char * datain, snapshot_data *P)
 
  if(NROW!=nrowc) 
    {
-     printf("NROW %d in paparameter and nrowc %d in file are different\n", NROW, nrowc);
-         exit(1);
+     printf("NROW %ld in paparameter and nrowc %d in file are different\n", NROW, nrowc);
+     exit(1);
    }
  
  if(NGRID!=ngridc) 
    {
-     printf("NGRID %d in paparameter and ngridc %d in file are different\n", NGRID, ngridc);
+     printf("NGRID %ld in paparameter and ngridc %d in file are different\n", NGRID, ngridc);
          exit(1);
    }
   
@@ -165,10 +164,10 @@ int read_art_snap(char * namein, char * datain, snapshot_data *P)
   /* SetWeights for all particles (multi masses possible)*/
   if(nspecies==0)/*old constant weigths*/
     {
-      Nparticles = (NROW*NROW*NROW);    
+      Nparticles = NROW * NROW * NROW ;    
       if(!(P->Pos = malloc(3*Nparticles*sizeof(float))))
 	{
-	  printf("problem allocating memory for particles positions (%d particles)\n", Nparticles);
+	  printf("problem allocating memory for particles positions (%lld particles)\n", Nparticles);
 	  exit(1);
 	}
       if(!(P->Vel = malloc(3*Nparticles*sizeof(float))))
@@ -181,7 +180,6 @@ int read_art_snap(char * namein, char * datain, snapshot_data *P)
 	  printf("problem allocating memory for particles masses\n");
 	  exit(1);
 	}
-      ww = 1.0;
     }
   else
     {
@@ -191,13 +189,13 @@ int read_art_snap(char * namein, char * datain, snapshot_data *P)
       if(Nparticles<0)
       {
 	  printf("wrong number of particles");
-	  printf("Npart %d Nspecies %d N %d ", Nparticles, nspecies,(int)(extras[9 + nspecies]));
+	  printf("Npart %lld Nspecies %d N %d ", Nparticles, nspecies,(int)(extras[9 + nspecies]));
 	  exit(1);
       }
 
       if(!(P->Pos = malloc(3*Nparticles*sizeof(float))))
       {
-	  printf("problem allocating memory for particles positions (%d particles)\n", Nparticles);
+	  printf("problem allocating memory for particles positions (%lld particles)\n", Nparticles);
 	  exit(1);
       }
       if(!(P->Vel = malloc(3*Nparticles*sizeof(float))))
@@ -215,7 +213,7 @@ int read_art_snap(char * namein, char * datain, snapshot_data *P)
       {
 	  
 	jend = lspecies[j-1];
-	printf("%d %d\n", jstart, jend);
+	printf("%lld %lld\n", jstart, jend);
 	for(k=jstart;k<=jend;k++)
 	  {
 	    P->Mass[k-1] = wspecies[j-1];
@@ -248,7 +246,7 @@ int read_art_snap(char * namein, char * datain, snapshot_data *P)
      }
 
 
-   printf("Pages %lld Species %d n_in_last %d \n", npages, nspecies, n_in_last);
+   printf("Pages %lld Species %d n_in_last %lld \n", npages, nspecies, n_in_last);
 
    /*allocate the buffer to read the data from the file*/
    if(!(buffer = malloc(NRECL*sizeof(float))))
@@ -303,7 +301,7 @@ int read_art_snap(char * namein, char * datain, snapshot_data *P)
 
 
 
-   printf("finished reading file %d particles in total \n", ntot);
+   printf("finished reading file %lld particles in total \n", ntot);
 
 
          
@@ -364,11 +362,11 @@ int read_art_snap(char * namein, char * datain, snapshot_data *P)
 int read_art_snap_multifile(char * namein, char * datain, snapshot_data *P, int n_files, int my_snap)
 {
 #define SKIP  {fread(&dummy,sizeof(int),1,filein);}
-#define FLOAT float
+  //#define FLOAT float
   FILE * filein;
   FILE * datafile;
   long long Nparticles;
-  long long i, jstart, jend, j, k;
+  long long i,j;
   int dummy;
   float aexpn, aexp0, amplt, astep;
   int istep;
@@ -376,7 +374,6 @@ int read_art_snap_multifile(char * namein, char * datain, snapshot_data *P, int 
   int nrowc, ngridc, nspecies, nseed;
   float om0, oml0, hubble, wp5, ocurv;
   float extras[100];
-  float ww;
   char header[45];
   long long * lspecies;
   float * wspecies;
@@ -399,8 +396,8 @@ int read_art_snap_multifile(char * namein, char * datain, snapshot_data *P, int 
   
   fprintf(stdout, "Nfiles %d\n", n_files);
 
-  fprintf(stdout, "man sizeof (int) %d\n", sizeof(int));
-  fprintf(stdout, "man sizeof (float) %d\n", sizeof(float));
+  fprintf(stdout, "man sizeof (int) %d\n", (int)sizeof(int));
+  fprintf(stdout, "man sizeof (float) %d\n", (int)sizeof(float));
 
   /*loope over the files*/
   for(i_file=0;i_file<n_files;i_file++){
@@ -498,13 +495,13 @@ int read_art_snap_multifile(char * namein, char * datain, snapshot_data *P, int 
     
     if(NROW!=nrowc) 
       {
-	printf("NROW %d in paparameter and nrowc %d in file are different\n", NROW, nrowc);
+	printf("NROW %ld in paparameter and nrowc %d in file are different\n", NROW, nrowc);
      //         exit(1);
       }
     
     if(NGRID!=ngridc) 
       {
-	printf("NGRID %d in paparameter and ngridc %d in file are different\n", NGRID, ngridc);
+	printf("NGRID %ld in paparameter and ngridc %d in file are different\n", NGRID, ngridc);
 	exit(1);
       }
     
@@ -547,7 +544,6 @@ int read_art_snap_multifile(char * namein, char * datain, snapshot_data *P, int 
 	      printf("problem allocating memory for particles masses\n");
 	      exit(1);
 	    }
-	  ww = 1.0;
 	}
       else
 	{
@@ -584,17 +580,17 @@ int read_art_snap_multifile(char * namein, char * datain, snapshot_data *P, int 
 	    {
 	      i_in_page = n_in_last;
 	    }		  
-	  printf("Nparticles %lld pages %d n_p_f %d i_in_page %d\n", Nparticles, npages, n_p_f, i_in_page);
+	  printf("Nparticles %lld pages %lld  n_p_f %d i_in_page %lld\n", Nparticles, npages, n_p_f, i_in_page);
 	  
 	  Nparticles = i_in_page * npages;
 
-	  printf("Nparticles %lld pages %d n_p_f %d i_in_page %d\n", Nparticles, npages, n_p_f, i_in_page);
+	  printf("Nparticles %lld pages %lld n_p_f %d i_in_page %lld\n", Nparticles, npages, n_p_f, i_in_page);
 
-	  jstart = 1;
+
 	  if(Nparticles<0)
 	    {
 	      printf("wrong number of particles");
-	      printf("Npart %d Nspecies %d N %d ", Nparticles, nspecies,(int)(extras[9 + nspecies]));
+	      printf("Npart %lld Nspecies %d N %d ", Nparticles, nspecies,(int)(extras[9 + nspecies]));
 	      exit(1);
 	    }
 	  
@@ -635,7 +631,7 @@ int read_art_snap_multifile(char * namein, char * datain, snapshot_data *P, int 
 
 
 
-   printf("Pages %lld Species %d n_in_last %d \n", npages, nspecies, n_in_last);
+   printf("Pages %lld Species %d n_in_last %lld \n", npages, nspecies, n_in_last);
 
 
    n_p_f = npages/n_files; /*number of pages per file*/
