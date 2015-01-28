@@ -10,10 +10,10 @@
 
 #define MIN(x,y) (x>y?y:x)
 #define MAX(x,y) (x>y?x:y)
-#define NROW 4096 //maximum number of particles in 1D//Bolshoi
-//#define NROW 1024 //maximum number of particles in 1D//BigBolshoi
-#define NGRID 256 //zero-level mesh in 1D
-#define NP    (1024*1024*1024) //max number of particles, Np must be less than NROW**3
+#define NROW 4096L //maximum number of particles in 1D//Bolshoi
+//#define NROW 1024L //maximum number of particles in 1D//BigBolshoi
+#define NGRID 256L //zero-level mesh in 1D
+#define NP    (1024L*1024L*1024L) //max number of particles, Np must be less than NROW**3
 #define NPAGE (NROW*NROW)//number of particles in a record
 #define NRECL (NPAGE*6)//number of words in a record
 
