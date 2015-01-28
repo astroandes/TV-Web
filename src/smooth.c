@@ -349,7 +349,12 @@ int main(int argc,char **argv)
 	  ReadART(ART_FileName, FileName, Simu, Opt_ART_NFILES, Opt_ART_MYFILE);
 	}
 	else if(Opt_HDF5&& (!Opt_ART)){
+	  #ifdef AREPO
 	  ReadHDF5File(FileName, Simu, FLAG_POS);
+	  #else
+	  fprintf(stderr, "To read HADF files you need to re-compile with -DAREPO\n");
+	  exit(1);
+	  #endif
 	}
 	else	
 	{
