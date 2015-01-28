@@ -2,7 +2,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+
+#ifdef AREPO
 #include <hdf5.h>
+#endif
+
 #include "io.h"
 #include "READ_ART.h"
 
@@ -12,9 +16,10 @@ static const int line_size = 1024;
 ssize_t 
 Mygetline (char **lineptr, int *n, FILE *stream)
 {
-  return getdelim (lineptr, n, '\n', stream);
+  return getdelim (lineptr, (size_t *) n, '\n', stream);
 }
 
+#ifdef AREPO
 //checks if file s an arepo file
 int IsHDF5File(char *fname){
     
@@ -26,7 +31,7 @@ int IsHDF5File(char *fname){
       return 0;
     }
 }
-
+#endif
 
 //checks if file is a gadget file
 int IsGadgetFile(char *fname)
@@ -60,15 +65,16 @@ This reads the ART snapshot and puts it into the adequate sstructure used in the
 */
 int ReadART(char *fname_struct, char *fname_data, snapshot_data *P, int nfiles, int my_file)
 {
-    int N_part;
+
     if(nfiles>0){
-      N_part = read_art_snap_multifile(fname_struct, fname_data, P, nfiles, my_file);
+      read_art_snap_multifile(fname_struct, fname_data, P, nfiles, my_file);
     }else{
-      N_part = read_art_snap(fname_struct, fname_data, P);
+      read_art_snap(fname_struct, fname_data, P);
     }
     return 0;
 }
 
+#ifdef AREPO
 /*
   reads full simulation in hdf5 format, asuming the structure in arepo
   simulations
@@ -248,7 +254,7 @@ int ReadHDF5File(char *fname, snapshot_data *P, int flags){
   //  exit(1);
   return 0;
 }
-
+#endif
 
 /* POINTERS in P MUST BE SET TO NULL BEFORE CALLING */
 /* OR TO PREVIOUSLY ALLOCATED DATA  */
@@ -267,11 +273,11 @@ int ReadGadget(char *fname, snapshot_data *P, int flags)
 #ifdef JUANK
     long long my_pc;
 #endif
-    int Ngas;
     long long NumPart=0;
     int files;
     long long i_part;
     long long n_part;
+    
 
     //guess how many files there are
     sprintf(buf,"%s",fname);
@@ -370,13 +376,11 @@ int ReadGadget(char *fname, snapshot_data *P, int flags)
 	{
 	    for(k=0, NumPart=0, ntot_withmasses=0; k<5; k++)
 		NumPart+= P->header.npart[k];
-	    Ngas= P->header.npart[0];
 	}
 	else
 	{
 	    for(k=0, NumPart=0, ntot_withmasses=0; k<5; k++)
 		NumPart+= P->header.npartTotal[k];
-	    Ngas= P->header.npartTotal[0];
 	}
 	
       for(k=0, ntot_withmasses=0; k<5; k++)
@@ -512,7 +516,7 @@ int ReadGadget(char *fname, snapshot_data *P, int flags)
 	      my_pc = my_pc + P->header.npart[k];
 #else	      	      
 	      fread(&P->Pos[3*pc], sizeof(float), 3*P->header.npart[k], fd);
-	      fprintf(stdout, "read now %lld, accumulated %lld %e\n", P->header.npart[k], 3*pc, P->Pos[3*pc]);
+	      fprintf(stdout, "read now %d, accumulated %lld %e\n", P->header.npart[k], 3*pc, P->Pos[3*pc]);
 	      if (flags&FLAG_SWAPENDIAN)
 		  Dswap4BArr(&P->Pos[3*pc],3*P->header.npart[k]);	      
 #endif
@@ -625,8 +629,9 @@ int ReadGadget(char *fname, snapshot_data *P, int flags)
 	}
       
       fclose(fd);
-      printf(" done.\n",buf); fflush(stdout);
+      fprintf(stdout, " done.\n"); fflush(stdout);
     }
+    return 0;
 }
 
 /* Reads SIMPLE format to a gadget structure */
@@ -892,7 +897,8 @@ int ReadSIMPLE2Gadget(char *fname, snapshot_data *P, int flags)
 
     fclose(fd);
     
-    printf(" done.\n",buf); fflush(stdout);
+    fflush(stdout);
+    fprintf(stdout, " done.\n"); 
 
     return 0;
 }
@@ -1303,7 +1309,6 @@ int LoadDensity(char *fname,density_field *density)
 {
     FILE *f;
     unsigned int i;
-    int j,k;
     int swap = 0;
 
     printf ("Loading density from %s ... ",fname);fflush(0);
@@ -1447,8 +1452,7 @@ int LoadDensity(char *fname,density_field *density)
 int SaveDensityGrid(char *fname,density_grid *density)
 {
     FILE *f;
-    unsigned int i,j;
-    long long l;
+    unsigned int i;
     char test[30];
 
     printf ("Saving density to %s ... ",fname);fflush(0);
@@ -1499,12 +1503,13 @@ int SaveDensityGrid(char *fname,density_grid *density)
     fwrite(&i,sizeof(int),1,f);
 
     printf ("done.\n");
+    return 0;
 }
 
 int SaveEigenvalueGrid(char *fname, density_grid *density, int n_eigen)
 {
     FILE *f;
-    unsigned int i,j;
+    unsigned int i;
     char test[30];
     char new_name[1000];
     
@@ -1531,7 +1536,7 @@ int SaveEigenvalueGrid(char *fname, density_grid *density, int n_eigen)
     fwrite(&(density->Ny),sizeof(int),1,f);
     fwrite(&(density->Nz),sizeof(int),1,f);
     fwrite(&(density->NNodes),sizeof(long long),1,f);
-    printf("N nodes to write %d\n", density->NNodes);
+    fprintf(stdout, "N nodes to write %lld\n", density->NNodes);
     fwrite(&(density->x0),sizeof(float),1,f);
     fwrite(&(density->y0),sizeof(float),1,f);
     fwrite(&(density->z0),sizeof(float),1,f);
@@ -1558,12 +1563,13 @@ int SaveEigenvalueGrid(char *fname, density_grid *density, int n_eigen)
     fwrite(&i,sizeof(int),1,f);
 
     printf ("done.\n");
+    return 0;
 }
 
 int SaveEigenvectorGrid(char *fname, density_grid *density, int n_eigen)
 {
     FILE *f;
-    unsigned int i,j;
+    unsigned int i;
     char test[30];
     char new_name[1000];
     
@@ -1590,7 +1596,7 @@ int SaveEigenvectorGrid(char *fname, density_grid *density, int n_eigen)
     fwrite(&(density->Ny),sizeof(int),1,f);
     fwrite(&(density->Nz),sizeof(int),1,f);
     fwrite(&(density->NNodes),sizeof(long long),1,f);
-    printf("N nodes to write %ld\n", density->NNodes*3);
+    fprintf(stdout, "N nodes to write %lld\n", density->NNodes*3);
     fwrite(&(density->x0),sizeof(float),1,f);
     fwrite(&(density->y0),sizeof(float),1,f);
     fwrite(&(density->z0),sizeof(float),1,f);
@@ -1624,7 +1630,7 @@ int SaveEigenvectorGrid(char *fname, density_grid *density, int n_eigen)
 int SaveTraceGrid(char *fname,density_grid *density)
 {
     FILE *f;
-    unsigned int i,j;
+    unsigned int i;
     char test[30];
 
     printf ("Saving eigenvalues to %s ... ",fname);fflush(0);
@@ -1648,7 +1654,7 @@ int SaveTraceGrid(char *fname,density_grid *density)
     fwrite(&(density->Ny),sizeof(int),1,f);
     fwrite(&(density->Nz),sizeof(int),1,f);
     fwrite(&(density->NNodes),sizeof(long long),1,f);
-    printf("N nodes to write %d\n", density->NNodes);
+    fprintf(stdout, "N nodes to write %lld\n", density->NNodes);
     fwrite(&(density->x0),sizeof(float),1,f);
     fwrite(&(density->y0),sizeof(float),1,f);
     fwrite(&(density->z0),sizeof(float),1,f);
@@ -1670,12 +1676,13 @@ int SaveTraceGrid(char *fname,density_grid *density)
     fwrite(&i,sizeof(int),1,f);
     
     printf ("done.\n");
+    return 0;
 }
 
 int SaveEnvGrid(char *fname,density_grid *density)
 {
     FILE *f;
-    unsigned int i,j;
+    unsigned int i;
     char test[30];
 
     printf ("Saving environment to %s ... ",fname);fflush(0);
@@ -1699,7 +1706,7 @@ int SaveEnvGrid(char *fname,density_grid *density)
     fwrite(&(density->Ny),sizeof(int),1,f);
     fwrite(&(density->Nz),sizeof(int),1,f);
     fwrite(&(density->NNodes),sizeof(int),1,f);
-    printf("N nodes to write %d\n", density->NNodes);
+    fprintf(stdout, "N nodes to write %lld\n", density->NNodes);
     fwrite(&(density->x0),sizeof(float),1,f);
     fwrite(&(density->y0),sizeof(float),1,f);
     fwrite(&(density->z0),sizeof(float),1,f);
@@ -1726,7 +1733,7 @@ int SaveEnvGrid(char *fname,density_grid *density)
 
 int WriteGadget(char *fname,snapshot_data *snap,int flags)
 {
- int i,j,k;
+  int i;
   FILE *f;
 
   if ((f=fopen(fname,"w"))==NULL)
@@ -1735,7 +1742,7 @@ int WriteGadget(char *fname,snapshot_data *snap,int flags)
       return -1;
     }
 
-  printf ("Saving gadget file %s (N=%d)",fname,snap->N);fflush(0);
+  fprintf(stdout, "Saving gadget file %s (N=%lld)",fname,snap->N);fflush(0);
 
   i=256;
   fwrite(&i,sizeof(int),1,f);
