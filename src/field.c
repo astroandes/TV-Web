@@ -484,9 +484,9 @@ int Compute_CIC_Density(float *Pos,float *Val,int ValDim,int ValPad,long long np
     float lx,ly,lz,tmp;
     float vol;
     float point_val = 1.0;
-    float min_val_x, max_val_x;
-    float min_val_y, max_val_y;
-    float min_val_z, max_val_z;
+    float min_val_x=1E10, max_val_x=-1E10;
+    float min_val_y=1E10, max_val_y=-1E10;
+    float min_val_z=1E10, max_val_z=-1E10;
 
     printf ("CIC xs= %f\n",xs);
 
