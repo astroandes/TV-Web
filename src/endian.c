@@ -98,7 +98,7 @@ inline void Dswap8B(void *val)
 void Dswap2BArr(void *val,int n)
 {
     int i;
-    char a,b;
+    char a;
 
     char *c=(char *)val;
 
