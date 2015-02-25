@@ -4,7 +4,7 @@
 #
 ###################################################
 
-CC = gcc
+CC = cc
 FFTW_INC=-I/usr/include
 FFTW_LIB=-L/usr/lib
 CC_OPTIONS = -Wall $(FFTW_INC) $(FFTW_LIB)  -m64  #-DNEWFORMAT  #-DGADGET_UNITS #-DJUANK #-DNEWFORMAT #-DSWAP -m64
