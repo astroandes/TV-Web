@@ -2,7 +2,9 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#ifdef AREPO
 #include <hdf5.h>
+#endif
 #include "io.h"
 #include "field.h"
 #include "READ_ART.h"
