@@ -25,7 +25,6 @@ int main(int argc, char **argv){
   char line[30];
   long long i;
   long long n_total;
-  int n_total;
   int n_x, n_y, n_z;
   int n_nodes;
   float dx, dy, dz, x_0, y_0, z_0;
