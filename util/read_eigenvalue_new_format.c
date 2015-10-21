@@ -17,7 +17,7 @@
    i.e. a 3D point grid(i,j,k) corresponds to  grid[i + N_X * (j + N_Y * k)] where N_X is the grid dimension size in x and N_Y is the grid dimension size in y (i,j,k start at 0).
 
 */
-#define FLOAT double
+#define FLOAT float
 int main(int argc, char **argv){
   FILE *in;
   FLOAT *grid;
@@ -48,7 +48,7 @@ int main(int argc, char **argv){
   fread(&n_x,sizeof(int),1,in);    
   fread(&n_y,sizeof(int),1,in);    
   fread(&n_z,sizeof(int),1,in);    
-  fread(&n_nodes,sizeof(int),1,in);    
+  fread(&n_nodes,sizeof(long long),1,in);    
   fread(&x_0,sizeof(float),1,in);    
   fread(&y_0,sizeof(float),1,in);    
   fread(&z_0,sizeof(float),1,in);    
