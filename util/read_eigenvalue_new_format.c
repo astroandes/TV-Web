@@ -26,7 +26,7 @@ int main(int argc, char **argv){
   long long i;
   long long n_total;
   int n_x, n_y, n_z;
-  int n_nodes;
+  long long n_nodes;
   float dx, dy, dz, x_0, y_0, z_0;
   FLOAT max_val, min_val;
 

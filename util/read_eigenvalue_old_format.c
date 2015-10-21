@@ -24,10 +24,10 @@ int main(int argc, char **argv){
   int dumb;
   char line[30];
   long long i;
-  //  long long n_total;
+  long long n_total;
   int n_total;
   int n_x, n_y, n_z;
-  long long n_nodes;
+  int n_nodes;
   float dx, dy, dz, x_0, y_0, z_0;
   FLOAT max_val, min_val;
 
