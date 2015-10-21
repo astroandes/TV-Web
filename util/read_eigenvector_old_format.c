@@ -50,7 +50,7 @@ int main(int argc, char **argv){
   fread(&n_x,sizeof(int),1,in);    
   fread(&n_y,sizeof(int),1,in);    
   fread(&n_z,sizeof(int),1,in);    
-  fread(&n_nodes,sizeof(long long),1,in);    
+  fread(&n_nodes,sizeof(int),1,in);    
   fread(&x_0,sizeof(float),1,in);    
   fread(&y_0,sizeof(float),1,in);    
   fread(&z_0,sizeof(float),1,in);    
