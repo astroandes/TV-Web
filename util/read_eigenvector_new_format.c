@@ -5,19 +5,21 @@
    USAGE: ./load_cic.x filename
    AUTHOR: Jaime Forero-Romero j.e.forero.romero@gmail.com
    DESCRIPTION:
-   Loads a 3Dimensional grid into a 3D array.
+   Loads a 4Dimensional grid into a 4D array.
    NOTES:
    n_x, n_y, n_z is the grid size
-   x_0, y_0, z_0 is the posiion of the cell for the grid(i,j,k) element in kpc/h
+   x_0, y_0, z_0 is the posiion of the cell for the vector(i,j,k) element in kpc/h
    dx,dy,z is the grid size in kpc/h
    
-   grid[n] runs over x,y,z in space, following fortran array conventions
+   vector[n] represents a 3D vector associated with a point in in space, following fortran array conventions
    for memory handling
    
-   i.e. a 3D point grid(i,j,k) corresponds to  grid[i + N_X * (j + N_Y * k)] where N_X is the grid dimension size in x and N_Y is the grid dimension size in y (i,j,k start at 0).
+   i.e. component C of the vector at point i,j,k in the grid is
+
+    grid(i,j,k) corresponds to  vector[C + 3*(i + N_X * (j + N_Y * k))] where N_X is the grid dimension size in x and N_Y is the grid dimension size in y (i,j,k start at 0).
 
 */
-#define FLOAT double
+#define FLOAT float
 int main(int argc, char **argv){
   FILE *in;
   FLOAT *grid;
@@ -26,7 +28,7 @@ int main(int argc, char **argv){
   long long i;
   long long n_total;
   int n_x, n_y, n_z;
-  int n_nodes;
+  long long n_nodes;
   float dx, dy, dz, x_0, y_0, z_0;
   FLOAT max_val, min_val;
 
@@ -48,7 +50,7 @@ int main(int argc, char **argv){
   fread(&n_x,sizeof(int),1,in);    
   fread(&n_y,sizeof(int),1,in);    
   fread(&n_z,sizeof(int),1,in);    
-  fread(&n_nodes,sizeof(int),1,in);    
+  fread(&n_nodes,sizeof(long long),1,in);    
   fread(&x_0,sizeof(float),1,in);    
   fread(&y_0,sizeof(float),1,in);    
   fread(&z_0,sizeof(float),1,in);    
@@ -58,13 +60,13 @@ int main(int argc, char **argv){
   fread(&dumb,sizeof(int),1,in);
 
   n_total = n_x * n_y * n_z;
-  if(!(grid=malloc(n_total * sizeof(FLOAT)))){
+  if(!(grid=malloc(n_total * 3 * sizeof(FLOAT)))){
     fprintf(stderr, "problem with array allocation\n");
     exit(1);
   }
   
   fread(&dumb,sizeof(int),1,in);
-  fread(&(grid[0]),sizeof(FLOAT), n_nodes, in);
+  fread(&(grid[0]),sizeof(FLOAT), n_nodes*3, in);
   fread(&dumb,sizeof(int),1,in);  
 
   fprintf(stderr, "Nx Ny Nz : %d %d %d %d\n", n_x, n_y, n_z, n_nodes);
@@ -72,10 +74,10 @@ int main(int argc, char **argv){
   fprintf(stderr, "dx dy dz : %g %g %g\n", dx, dy, dz);
   fclose(in);
 
-  fprintf(stdout, "%g %g %g\n", grid[0], grid[1], grid[2]);
+  fprintf(stdout, "Vector components for i.j.k = 0,0,0: %g %g %g\n", grid[0], grid[1], grid[2]);
   min_val = 1.0E10;
   max_val = -1.0E10;
- for(i=0;i<n_nodes;i++){
+ for(i=0;i<3*n_nodes;i++){
    if(grid[i]<min_val){
      min_val = grid[i];
    }

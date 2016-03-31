@@ -39,7 +39,7 @@ int main(int argc, char **argv){
 
   for(i=1;i<=n_snap_in;i++){
     LoadDensityGrid(argv[i],&(Grids[i-1]));
-    fprintf(stdout, "Adding %d nodes\n", Grids[n_snap_in].NNodes);
+    fprintf(stdout, "Adding %lld nodes\n", Grids[n_snap_in].NNodes);
     for(n=0;n<Grids[n_snap_in].NNodes;n++){
       Grids[n_snap_in].grid[n] += Grids[i-1].grid[n];
     }    
