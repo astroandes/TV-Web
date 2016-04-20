@@ -12,7 +12,7 @@ def read_CIC_scalar(filename):
     n_x = f.read(4)
     n_y = f.read(4)
     n_z = f.read(4)
-    nodes = f.read(4)
+    nodes = f.read(8)
     x0 = f.read(4)
     y0 = f.read(4)
     z0 = f.read(4)
@@ -24,7 +24,7 @@ def read_CIC_scalar(filename):
     n_x = (unpack('i', n_x))[0]
     n_y = (unpack('i', n_y))[0]
     n_z = (unpack('i', n_z))[0]
-    nodes = (unpack('i', nodes))[0]
+    nodes = (unpack('q', nodes))[0]
     dx = (unpack('f', dx))[0]
     dy = (unpack('f', dy))[0]
     dz = (unpack('f', dz))[0]
@@ -127,6 +127,28 @@ def test_vector_plot():
     plt.savefig('BOX10909_smooth_1.0_align_e3.pdf')
 
 
+def test_FA_plot(file1, file2, file3):
+    eigenval1  = read_CIC_scalar(file1)
+    eigenval2  = read_CIC_scalar(file2)
+    eigenval3  = read_CIC_scalar(file3)
+
+    
+    FA = (eigenval1-eigenval3)**2  + (eigenval2-eigenval3)**2  + (eigenval1-eigenval2)**2 
+    FA = FA/(eigenval1**2 + eigenval2**2 + eigenval3**2)
+    FA = np.sqrt(FA)/np.sqrt(3.0)
+
+    cut = FA[40,:,:]
+
+    plt.imshow(cut.T)
+    print cut.min(), cut.max()
+    plt.savefig('test_FA_cut.pdf')
 
 #filein="/store/04/bolshoi/V-web/clues/256/snap_190.CIC.s8.00.eigen_1"
 #eigen_1 = read_CIC_scalar(filein)
+
+file1="/home/forero/07_04_2016/snapshot_005.eigen_1"
+file2="/home/forero/07_04_2016/snapshot_005.eigen_2"
+file3="/home/forero/07_04_2016/snapshot_005.eigen_3"
+test_FA_plot(file1, file2, file3)
+#eigen_1 = read_CIC_scalar(filein)
+#print eigen_1.max(), eigen_1.min()
