@@ -9,6 +9,7 @@
 
 #include "io.h"
 #include "READ_ART.h"
+#include "endian.h"
 
 /* Default value for line length.  */
 static const int line_size = 1024;
@@ -169,7 +170,9 @@ int ReadHDF5File(char *fname, snapshot_data *P, int flags){
   total_part = 0;  
   /*loop over all files and fill the data*/
   for(ifile=0;ifile<nfiles;ifile++){
+
     sprintf(filein, "%s.%d.hdf5", fname, ifile);
+    fprintf(stdout, "reading file %s\n", filein);
     file = H5Fopen (filein, H5F_ACC_RDONLY, H5P_DEFAULT);
     
     /*Get the number of particles for this file*/
